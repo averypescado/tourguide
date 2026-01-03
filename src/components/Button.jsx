@@ -1,4 +1,6 @@
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, Text, StyleSheet, Alert } from 'react-native';
+import { useState } from 'react';
+import * as Location from 'expo-location';
 
 const styles = StyleSheet.create({
   button: {
@@ -14,20 +16,37 @@ const styles = StyleSheet.create({
 });
 
 const Button = () => {
-        console.log("Here I am")
-    return (
-            <Pressable 
-        style={styles.button}
-        onPress={() => console.log('Button pressed')}
+  // State to track if we have location permission
+  const [hasPermission, setHasPermission] = useState(false);
+
+  // Function to request location permission
+  const requestLocationPermission = async () => {
+    try {
+      // Ask the user for permission to access their location
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status === 'granted') {
+        setHasPermission(true);
+        Alert.alert('Success!', 'Location permission granted');
+      } else {
+        Alert.alert('Permission Denied', 'We need location access to find interesting places near you');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong requesting permissions');
+      console.error(error);
+    }
+  };
+
+  return (
+    <Pressable
+      style={styles.button}
+      onPress={requestLocationPermission}
     >
-        <Text style={styles.text}>Press me</Text>
+      <Text style={styles.text}>
+        {hasPermission ? 'Permission Granted!' : 'Request Location Permission'}
+      </Text>
     </Pressable>
-
-
-
-
-    )
-
-}
+  );
+};
 
 export default Button;
